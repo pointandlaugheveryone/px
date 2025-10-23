@@ -81,14 +81,17 @@ Dictionary<string, int> ParallelCount()
 	var files = GetTextFiles(dataDir).ToArray();
 
 	var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+	var gate = new object();
+	var threads = new List<Thread>();
 	
 	foreach (var file in files)
 	{
-		Thread t = new Thread(() =>
+		string f = file;
+		var t = new Thread(() =>
 		{
-			foreach (var token in ReadTokensFromFile(file))
+			foreach (var token in ReadTokensFromFile(f))
 			{
-				lock (counts)
+				lock (gate)
 				{
 					if (counts.TryGetValue(token, out var c)) counts[token] = c + 1;
 					else counts[token] = 1;
@@ -96,8 +99,11 @@ Dictionary<string, int> ParallelCount()
 			}
 		});
 		t.Start();
-		t.Join();
+		threads.Add(t);
 	}
+
+	foreach (Thread t in threads) t.Join();
+	
 
 	sw.Stop();
 	Console.WriteLine($"[PAR] Done in {sw.ElapsedMilliseconds} ms");
@@ -173,9 +179,7 @@ ConcurrentDictionary<string, int> ParallelCountConcurrentMap()
 			{
 				foreach (var kv in local)
 				{
-					counts[kv.Key] = counts.TryGetValue(kv.Key, out var old) 
-						? old + kv.Value 
-						: kv.Value;
+					counts.AddOrUpdate(kv.Key, kv.Value, (_, old) => old + kv.Value);
 				}
 			})
 		;
