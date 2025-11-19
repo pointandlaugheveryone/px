@@ -1,7 +1,7 @@
 #include <iostream>
 #include <chrono>
 
-int n;
+constexpr int n = 12;
 long long pocetReseni = 0;
 
 void BitmaskSolve(int radek, int sloupce, int diagBottomRight, int diagBottomLeft){
@@ -23,12 +23,12 @@ void BitmaskSolve(int radek, int sloupce, int diagBottomRight, int diagBottomLef
 }
 
 int main() {
-    std::cout << "N:\t";
-    std::cin >> n;
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(nullptr);
 
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::system_clock::now();
     BitmaskSolve(0, 0, 0, 0);
-    auto end = std::chrono::high_resolution_clock::now();
+    const auto end = std::chrono::system_clock::now();
 
     auto duration = duration_cast<std::chrono::microseconds>(end - start);
     std::cout << pocetReseni << ", time:\t" << duration.count() / 1000.0 << "ms" << std::endl;
