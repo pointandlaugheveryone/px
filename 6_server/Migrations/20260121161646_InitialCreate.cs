@@ -11,16 +11,17 @@ namespace _6_server.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "SecretKey",
+                name: "keys",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    KeyName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    KeyName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    SecretValue = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SecretKey", x => x.Id);
+                    table.PrimaryKey("PK_keys", x => x.Id);
                 });
         }
 
@@ -28,7 +29,7 @@ namespace _6_server.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "SecretKey");
+                name: "keys");
         }
     }
 }

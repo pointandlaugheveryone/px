@@ -31,11 +31,17 @@ namespace _6_server.Migrations
 
                     b.Property<string>("KeyName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SecretValue")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("SecretKey");
+                    b.ToTable("keys");
                 });
 #pragma warning restore 612, 618
         }

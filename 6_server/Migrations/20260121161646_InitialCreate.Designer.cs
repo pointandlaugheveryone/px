@@ -11,7 +11,7 @@ using _6_server;
 namespace _6_server.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20260121143951_InitialCreate")]
+    [Migration("20260121161646_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -34,11 +34,17 @@ namespace _6_server.Migrations
 
                     b.Property<string>("KeyName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SecretValue")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("SecretKey");
+                    b.ToTable("keys");
                 });
 #pragma warning restore 612, 618
         }
