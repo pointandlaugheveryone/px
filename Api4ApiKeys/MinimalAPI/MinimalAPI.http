@@ -1,0 +1,4 @@
+@MinimalAPI_HostAddress = http://localhost:6967
+
+GET {{MinimalAPI_HostAddress}}/swagger
+Accept: application/json

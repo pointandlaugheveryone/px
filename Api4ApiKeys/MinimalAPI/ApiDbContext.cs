@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-namespace _6_server;
+namespace MinimalAPI;
 
 public class ApiDbContext(DbContextOptions<ApiDbContext> options) : DbContext(options)
 {

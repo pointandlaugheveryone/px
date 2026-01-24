@@ -1,6 +1,6 @@
-using _6_server;
-using _6_server.Endpoints;
+using MinimalAPI;
 using Microsoft.EntityFrameworkCore;
+using MinimalAPI.Endpoints;
 
 
 var builder = WebApplication.CreateBuilder();
@@ -28,15 +28,18 @@ builder.Services.AddOpenApiDocument(config =>
 var app = builder.Build();
 
 app.UseOpenApi();
-app.UseSwaggerUi(config => // pasted from ms learn
+if (app.Environment.IsDevelopment())
 {
-	config.DocumentTitle = "APIkeyAPI";
-	config.Path = "/swagger";
-	config.DocumentPath = "/swagger/{documentName}/swagger.json";
-	config.DocExpansion = "list";
-});
+	app.UseSwaggerUi(config =>
+	{
+		config.DocumentTitle = "APIkeyAPI";
+		config.Path = "/swagger";
+		config.DocumentPath = $"/swagger/{config.DocumentTitle}/swagger.json";
+		config.DocExpansion = "list";
+	});
+}
 
 app.MapGet("/", () => "Here you can safely store your openAI api keys!");
-
 app.MapKeyEndpoints();
+
 app.Run();

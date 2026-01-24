@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace _6_server.Endpoints;
+namespace MinimalAPI.Endpoints;
 
 public static class KeyEndpoints
 {
@@ -8,12 +8,9 @@ public static class KeyEndpoints
 	{
 		app.MapGet("/key/id/{id:int}", GetById);
 		app.MapGet("/key/name/{keyName}", GetByName);
-
 		app.MapPost("/key", Create);
-
 		app.MapPut("/key/id/{id:int}", UpdateById);
 		app.MapPut("/key/name/{keyName}", UpdateByName);
-
 		app.MapDelete("/key/id/{id:int}", DeleteById);
 	}
 
@@ -22,8 +19,7 @@ public static class KeyEndpoints
 		if (string.IsNullOrWhiteSpace(keyName))
 			return Results.BadRequest("Invalid key name :(");
 
-		var key = await ctx.keys
-			.SingleOrDefaultAsync(k => k.KeyName == keyName);
+		var key = await ctx.keys.SingleOrDefaultAsync(k => k.KeyName == keyName);
 
 		return key is not null
 			? Results.Ok(key)
@@ -45,20 +41,14 @@ public static class KeyEndpoints
 		    string.IsNullOrWhiteSpace(inputKey.SecretValue))
 			return Results.BadRequest("Invalid input.");
 
-		var key = await ctx.keys
-			.SingleOrDefaultAsync(k => k.KeyName == keyName);
+		var key = await ctx.keys.SingleOrDefaultAsync(k => k.KeyName == keyName);
 
-		if (key is null)
-			return Results.NotFound();
+		if (key is null) return Results.NotFound();
 
-		if (key.KeyName != inputKey.KeyName)
-		{
-			var nameTaken = await ctx.keys
-				.AnyAsync(k => k.KeyName == inputKey.KeyName);
-
-			if (nameTaken)
-				return Results.Conflict("Key name already taken.");
-		}
+		// KeyName already taken
+		if (key.KeyName != inputKey.KeyName
+		    && await ctx.keys.AnyAsync(k => k.KeyName == inputKey.KeyName))
+			return Results.Conflict("Someone was faster with their original key name than you");
 
 		key.KeyName = inputKey.KeyName;
 		key.SecretValue = inputKey.SecretValue;
@@ -70,7 +60,7 @@ public static class KeyEndpoints
 		catch (DbUpdateException)
 		{
 			return Results.Problem(
-				title: "Database error",
+				title: "Database error hell nah",
 				statusCode: StatusCodes.Status500InternalServerError);
 		}
 
@@ -81,18 +71,15 @@ public static class KeyEndpoints
 	{
 		if (string.IsNullOrWhiteSpace(inputKey.KeyName) ||
 		    string.IsNullOrWhiteSpace(inputKey.SecretValue))
-			return Results.BadRequest("Invalid input; as always");
+			return Results.BadRequest("Invalid input");
 
 		var key = await ctx.keys.FindAsync(id);
-		if (key is null)
-			return Results.NotFound();
+		if (key is null) return Results.NotFound();
 
-		if (key.KeyName != inputKey.KeyName)
-		{
-			// name taken
-			if (await ctx.keys.AnyAsync(k => k.KeyName == inputKey.KeyName))
-				return Results.Conflict("Someone was faster with their original key name than you");
-		}
+		// KeyName already taken
+		if (key.KeyName != inputKey.KeyName
+		    && await ctx.keys.AnyAsync(k => k.KeyName == inputKey.KeyName))
+			return Results.Conflict("Someone was faster with their original key name than you");
 
 		key.KeyName = inputKey.KeyName;
 		key.SecretValue = inputKey.SecretValue;
@@ -113,24 +100,19 @@ public static class KeyEndpoints
 
 	private static async Task<IResult> Create(SecretKey? inputKey, ApiDbContext ctx)
 	{
-		if (inputKey is null) return
+		if (inputKey is null ||
+		    string.IsNullOrWhiteSpace(inputKey.KeyName) ||
+		    string.IsNullOrWhiteSpace(inputKey.SecretValue)
+		    ) return
 			Results.BadRequest("invalid input");
 
-		if (string.IsNullOrWhiteSpace(inputKey.KeyName))
-			return Results.BadRequest("KeyName empty");
-
-		if (string.IsNullOrWhiteSpace(inputKey.SecretValue))
-			return Results.BadRequest("SecretValue empty");
-
-		if (inputKey.KeyName.Length > 100)
+		if (inputKey.KeyName.Length > 500)
 			return Results.BadRequest("KeyName too long.");
 
-		var exists = await ctx.keys
-			.AnyAsync(i => i.KeyName == inputKey.KeyName);
-		// allow insert of the same secret under different name is on purpose
-
+		// allow insert of the same secret under different name is on purpose, name stays original for routing
+		var exists = await ctx.keys.AnyAsync(i => i.KeyName == inputKey.KeyName);
 		if (exists)
-			return Results.Conflict("Key name already taken.");
+			return Results.Conflict("Someone was faster with their original key name than you");
 
 		var key = new SecretKey()
 		{
@@ -156,8 +138,7 @@ public static class KeyEndpoints
 	private static async Task<IResult> DeleteById(int id, ApiDbContext ctx)
 	{
 		var key = await ctx.keys.FindAsync(id);
-		if (key is null)
-			return Results.NotFound();
+		if (key is null) return Results.NotFound();
 
 		try {
 			ctx.Remove(key);
@@ -165,7 +146,7 @@ public static class KeyEndpoints
 		}
 		catch (DbUpdateException)  {
 			return Results.Problem(
-				detail: "My database is probably down",
+				detail: "Database error hell nah",
 				statusCode: StatusCodes.Status500InternalServerError);
 		}
 

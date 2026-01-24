@@ -1,4 +1,0 @@
-@_6_server_HostAddress = http://localhost:6967
-
-GET {{_6_server_HostAddress}}/swagger
-Accept: application/json

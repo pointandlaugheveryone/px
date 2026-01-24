@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace _6_server;
+namespace ControllerAPI.Models;
 
 public class SecretKey
 {

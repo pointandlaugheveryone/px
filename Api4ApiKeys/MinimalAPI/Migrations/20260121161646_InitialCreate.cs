@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace _6_server.Migrations
+namespace MinimalAPI.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

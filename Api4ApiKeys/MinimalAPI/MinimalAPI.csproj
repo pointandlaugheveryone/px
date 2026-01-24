@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>_6_server</RootNamespace>
+    <RootNamespace>MinimalAPI</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
