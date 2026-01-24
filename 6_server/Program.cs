@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder();
-builder.Services.AddOpenApi("v0");
 
 builder.Configuration
 	.AddJsonFile("appsettings.Development.json", optional: true)
-	.AddEnvironmentVariables(); 
+	.AddEnvironmentVariables();
+
 if (builder.Configuration.GetConnectionString("CONNECTION") is null)
 {
 	throw new Exception("No database adress found.");
@@ -17,9 +17,24 @@ if (builder.Configuration.GetConnectionString("CONNECTION") is null)
 builder.Services.AddDbContext<ApiDbContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("CONNECTION")));
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApiDocument(config =>
+{
+	config.DocumentName = "APIKeyAPI";
+	config.Version = "v1";
+	config.Title = $"{config.DocumentName} {config.Version}";
+});
+
 var app = builder.Build();
-app.MapOpenApi();
-app.UseSwaggerUI(options => { options.SwaggerEndpoint("/openapi/v1.json", "v1"); });
+
+app.UseOpenApi();
+app.UseSwaggerUi(config => // pasted from ms learn
+{
+	config.DocumentTitle = "APIkeyAPI";
+	config.Path = "/swagger";
+	config.DocumentPath = "/swagger/{documentName}/swagger.json";
+	config.DocExpansion = "list";
+});
 
 app.MapGet("/", () => "Here you can safely store your openAI api keys!");
 

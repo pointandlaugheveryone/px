@@ -1,4 +1,4 @@
-@_6_server_HostAddress = http://localhost:5141
+@_6_server_HostAddress = http://localhost:6967
 
-GET {{_6_server_HostAddress}}/key/id/12
+GET {{_6_server_HostAddress}}/swagger
 Accept: application/json
